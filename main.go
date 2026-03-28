@@ -15,17 +15,17 @@ func main() {
 
 	for {
 		// accepts client connection
-		clientTcpconn, err := tcpListener.AcceptTCP()
+		clientConn, err := tcpListener.AcceptTCP()
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
 		// goroutine that handles each client connection concurrently
-		go func(clientTcpconn net.Conn) {
+		go func(clientConn net.Conn) {
 			// reads client CONNECT request and stores into data byte slice
 			data := make([]byte, 1024)
-			clientTcpconn.Read(data)
+			clientConn.Read(data)
 
 			// extracts destination domain from CONNECT request line
 			var p int
@@ -45,7 +45,7 @@ func main() {
 			if err != nil {
 				log.Println(err)
 			}
-			clientTcpconn.Write([]byte("HTTP/1.1 200 Connection Established\r\n\r\n"))
+			clientConn.Write([]byte("HTTP/1.1 200 Connection Established\r\n\r\n"))
 
 			// two go routines that bidirectionally forward data between client and server
 			go func(c net.Conn, s net.Conn) {
@@ -53,14 +53,14 @@ func main() {
 				if err != nil {
 					log.Println(err)
 				}
-			}(clientTcpconn, serverConn)
+			}(clientConn, serverConn)
 
 			go func(c net.Conn, s net.Conn) {
 				_, err = io.Copy(s, c)
 				if err != nil {
 					log.Println(err)
 				}
-			}(clientTcpconn, serverConn)
-		}(clientTcpconn)
+			}(clientConn, serverConn)
+		}(clientConn)
 	}
 }

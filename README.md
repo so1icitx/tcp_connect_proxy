@@ -1,5 +1,5 @@
 
-# Tcp CONNECT Proxy
+# TCP CONNECT Proxy
 
 A simple HTTP CONNECT proxy written in Go.
 
